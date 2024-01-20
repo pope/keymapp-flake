@@ -22,19 +22,15 @@
   };
 
   outputs =
-    { self
-    , flake-parts
+    { flake-parts
     , devenv
     , treefmt-nix
     , ...
     } @ inputs:
-    {
-      overlays.default = final: _prev: {
-        inherit (self.packages.${final.system}) keymapp keymapp-build;
-      };
-    } // flake-parts.lib.mkFlake { inherit inputs; } {
+    flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         devenv.flakeModule
+        flake-parts.flakeModules.easyOverlay
         treefmt-nix.flakeModule
       ];
 
@@ -107,6 +103,10 @@
           };
         in
         {
+          overlayAttrs = {
+            inherit (config.packages) keymapp keymapp-build;
+          };
+
           packages = {
             inherit keymapp keymapp-build;
             default = keymapp;
