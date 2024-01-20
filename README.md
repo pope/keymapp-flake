@@ -43,6 +43,7 @@ Next, enable the udev rules and set up your user account to be part of the
 
 {
   users = {
+    # Replace `you` with your username.
     users.you.extraGroups = [ "plugdev" ];
     groups.plugdev = { };
   };
@@ -59,7 +60,7 @@ Lastly, install keymapp.
 {
   environment.systemPackages = [ pkgs.keymapp ];
 
-  # or for just your user
+  # or for just your user (don't forget to replace `you`)
   users.users.you.packages = [ pkgs.keymapp ];
 }
 ```
