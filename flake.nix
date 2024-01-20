@@ -22,13 +22,17 @@
   };
 
   outputs =
-    { flake-parts
+    { self
+    , flake-parts
     , devenv
     , treefmt-nix
     , ...
     } @ inputs:
-
-    flake-parts.lib.mkFlake { inherit inputs; } {
+    {
+      overlays.default = final: _prev: {
+        inherit (self.packages.${final.system}) keymapp keymapp-build;
+      };
+    } // flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         devenv.flakeModule
         treefmt-nix.flakeModule
