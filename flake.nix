@@ -63,7 +63,8 @@
             '';
             meta = with pkgs.lib; {
               homepage = "https://blog.zsa.io/keymapp/";
-              license = licenses.unfree;
+              # TODO(pope): Figure out how to import and accept unfree code. Then re-enable.
+              # license = licenses.unfree;
               sourceProvenance = with sourceTypes; [ binaryNativeCode ];
             };
           };
