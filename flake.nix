@@ -16,7 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     keymapp = {
-      url = "file+https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.0.7.tar.gz";
+      url = "file+https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.0.9.tar.gz";
       flake = false;
     };
   };

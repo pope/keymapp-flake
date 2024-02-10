@@ -102,13 +102,13 @@
     "keymapp": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-wcsVe5wO2bdOAhrladTRXIJ02UDwhXeLGpcXLLNzJwQ=",
+        "narHash": "sha256-GMLPJrg1jZU7riVugPG2t+CUv3h4k5Lteey/+UMnPy8=",
         "type": "file",
-        "url": "https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.0.7.tar.gz"
+        "url": "https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.0.9.tar.gz"
       },
       "original": {
         "type": "file",
-        "url": "https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.0.7.tar.gz"
+        "url": "https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.0.9.tar.gz"
       }
     },
     "lowdown-src": {
