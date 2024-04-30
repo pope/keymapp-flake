@@ -3,12 +3,9 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs-lib.follows = "nixpkgs";
-    };
-    devenv = {
-      url = "github:cachix/devenv";
+    systems.url = "github:nix-systems/x86_64-linux";
+    pre-commit-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix = {
@@ -22,21 +19,28 @@
   };
 
   outputs =
-    { flake-parts
-    , devenv
+    { nixpkgs
+    , self
+    , systems
+    , pre-commit-hooks
     , treefmt-nix
     , ...
     } @ inputs:
-    flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        devenv.flakeModule
-        flake-parts.flakeModules.easyOverlay
-        treefmt-nix.flakeModule
-      ];
-
-      systems = [ "x86_64-linux" ];
-
-      perSystem = { config, pkgs, ... }:
+    let
+      eachSystem = f: nixpkgs.lib.genAttrs (import systems) (system: f
+        (import nixpkgs { inherit system; })
+      );
+      treefmtEval = eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs (_: {
+        projectRootFile = "flake.nix";
+        programs = {
+          deadnix.enable = true;
+          nixpkgs-fmt.enable = true;
+          statix.enable = true;
+        };
+      }));
+    in
+    {
+      packages = eachSystem (pkgs:
         let
           keymapp-build = pkgs.stdenv.mkDerivation {
             name = "keymapp-build";
@@ -104,34 +108,34 @@
           };
         in
         {
-          overlayAttrs = {
-            inherit (config.packages) keymapp keymapp-build;
-          };
+          inherit keymapp keymapp-build;
+          default = keymapp;
+        });
 
-          packages = {
-            inherit keymapp keymapp-build;
-            default = keymapp;
-          };
+      overlays.default = final: _prev: {
+        inherit (self.packages.${final.system}) keymapp keymapp-build;
+      };
 
-          devenv.shells.default = {
-            packages = [
-              config.treefmt.build.wrapper
-            ];
-            pre-commit = {
-              hooks.treefmt.enable = true;
-              settings.treefmt.package = config.treefmt.build.wrapper;
-            };
-            difftastic.enable = true;
-          };
+      devShells = eachSystem (pkgs: {
+        default = pkgs.mkShell {
+          inherit (self.checks.${pkgs.system}.pre-commit-check) shellHook;
+          buildInputs = self.checks.${pkgs.system}.pre-commit-check.enabledPackages;
+          packages = [
+            treefmtEval.${pkgs.system}.config.build.wrapper
+          ];
+        };
+      });
 
-          treefmt = {
-            projectRootFile = "flake.nix";
-            programs = {
-              deadnix.enable = true;
-              nixpkgs-fmt.enable = true;
-              statix.enable = true;
-            };
+      formatter = eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
+
+      checks = eachSystem (pkgs: {
+        pre-commit-check = pre-commit-hooks.lib.${pkgs.system}.run {
+          src = ./.;
+          hooks.treefmt = {
+            enable = true;
+            package = treefmtEval.${pkgs.system}.config.build.wrapper;
           };
         };
+      });
     };
 }
