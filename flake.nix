@@ -13,7 +13,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     keymapp = {
-      url = "file+https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.0.9.tar.gz";
+      url = "file+https://oryx.nyc3.cdn.digitaloceanspaces.com/keymapp/keymapp-1.2.1.tar.gz";
       flake = false;
     };
   };
@@ -115,6 +115,14 @@
       overlays.default = final: _prev: {
         inherit (self.packages.${final.system}) keymapp keymapp-build;
       };
+
+      apps = eachSystem (pkgs: rec {
+        keymapp = {
+          type = "app";
+          program = "${pkgs.keymapp}/bin/keymapp";
+        };
+        default = keymapp;
+      });
 
       devShells = eachSystem (pkgs: {
         default = pkgs.mkShell {
