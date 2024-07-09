@@ -82,9 +82,10 @@
               glib
               gtk3
               libgudev
+              libsoup_3
               libusb1
               systemd
-              webkitgtk
+              webkitgtk_4_1
             ];
             extraInstallCommands =
               let
