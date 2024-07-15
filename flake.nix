@@ -4,8 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/x86_64-linux";
-    pre-commit-hooks = {
-      url = "github:cachix/pre-commit-hooks.nix";
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix = {
@@ -22,7 +22,7 @@
     { nixpkgs
     , self
     , systems
-    , pre-commit-hooks
+    , git-hooks
     , treefmt-nix
     , ...
     } @ inputs:
@@ -129,16 +129,13 @@
         default = pkgs.mkShell {
           inherit (self.checks.${pkgs.system}.pre-commit-check) shellHook;
           buildInputs = self.checks.${pkgs.system}.pre-commit-check.enabledPackages;
-          packages = [
-            treefmtEval.${pkgs.system}.config.build.wrapper
-          ];
         };
       });
 
       formatter = eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
       checks = eachSystem (pkgs: {
-        pre-commit-check = pre-commit-hooks.lib.${pkgs.system}.run {
+        pre-commit-check = git-hooks.lib.${pkgs.system}.run {
           src = ./.;
           hooks.treefmt = {
             enable = true;
